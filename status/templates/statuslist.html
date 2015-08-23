@@ -1,0 +1,68 @@
+<div class="row">
+	<div class="col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-1 main">
+	  <h1 class="page-header">Line Status</h1>
+        {% if updated != True %}
+            <div class="alert alert-warning alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-label="close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <strong>Warning!</strong> Could not update status, info may be inaccurate
+            </div>
+        {% endif %}
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {% if filter != None %}{{ filter }}{% else %}Select Service{% endif %} <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+              <li><a href="/status/">Show All</a></li>
+              {% for type in linetypes %}
+                <li><a href="/status/{{ type.name }}">{{ type.name }}</a></li>
+              {% endfor %}
+          </ul>
+        </div>
+	  <div class="table-responsive">
+	    <table class="table table-striped">
+	      <thead>
+	        <tr>
+	          <th>Line</th>
+	          <th>Status</th>
+	          <th>Description</th>
+	          <th>Last Update</th>
+                {% if user.is_authenticated %}
+			        <th style="text-align: center;">Favorite</th>
+                {% endif %}
+	        </tr>
+	      </thead>
+	      <tbody>
+
+			{% for line in lines %}
+				<tr>
+					<td id="line-name-{{ line.id }}">{{ line.name }}</td>
+					<td id="line-status-{{ line.id }}">{{ line.status }}</td>
+					<td id="line-text-{{ line.id }}">{% if line.text != None %}{{ line.text|safe }}{% endif %}</td>
+					<td id="line-updated-{{ line.id }}">{% if line.date != None %}{{ line.date }}, {{ line.time }}{% endif %}</td>
+					{% if user.is_authenticated %}
+                        <td style="text-align: center;" class="favorite-button-container" id="line-favorite-{{ line.id }}">
+                            <form method="post" action="/status/favorite/">
+                                {% csrf_token %}
+                                <input type="hidden" name='line' value="{{ line.id }}" />
+                                {% if line in favorites %}
+                                    <button type="submit" class="btn btn-primary btn-sm line-favorite-btn" id="line-favorite-btn-{{ line.id }}">
+                                            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>Favorite
+                                    </button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-default btn-sm line-favorite-btn" id="line-favorite-btn-{{ line.id }}">
+                                            <span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>Favorite
+                                    </button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    {% endif %}
+				</tr>
+			{% endfor %}
+
+	      </tbody>
+	    </table>
+	  </div>
+	</div>
+</div>
